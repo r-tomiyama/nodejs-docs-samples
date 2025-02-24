@@ -16,8 +16,13 @@
 import express from 'express';
 import { LoggingWinston } from '@google-cloud/logging-winston';
 import { createLogger } from "winston";
+import { PubSub } from '@google-cloud/pubsub';
 
 const app = express();
+
+const port = process.env.PORT || 8080;
+const pubSubClient = new PubSub();
+const subscriptionName = process.env.SUBSCRIPTION_NAME || 'test-peko-hello-pull';
 
 app.use(express.json()); // JSONボディを解析するミドルウェア
 
@@ -35,36 +40,41 @@ const logger = createLogger({
   ],
 });
 
-app.get('/', (req, res) => {
-  const name = process.env.NAME || 'World';
-  res.send(`Hello ${name}!`);
-});
+// ヘルスチェック用エンドポイント
+app.get('/', (req, res) => res.send('Service is running'));
 
-app.post('/', async (req, res) => {
-  const decodedData = req.body.message?.data ? Buffer.from(req.body.message.data, 'base64').toString() : null;
-  const requestLog = { ...req.body, decodedData };
-  logger.info("request", { requestLog });
+// サービス起動時に pull を開始
+function startPulling() {
+  const subscription = pubSubClient.subscription(subscriptionName);
+  subscription.on('message', async message => {
+    const messageData = message.data.toString();
+    const messageLog = {
+      id: message.id,
+      orderingKey: message.orderingKey,
+      publishTime: message.publishTime,
+      deliveryAttempt: message.deliveryAttempt,
+      attributes: message.attributes,
+      messageData,
+    };
 
-  logger.info("10 seconds wait", { requestLog });
-  await new Promise(resolve => setTimeout(resolve, 10000));
+    logger.info(`pull ${messageData}`, messageLog);
+
+    logger.info("10 seconds wait", messageLog);
+    await new Promise(resolve => setTimeout(resolve, 10000));
+
+    logger.info("ack", messageLog);
+    message.ack();
+  });
+}
 
 
-
-  const name = req.body.message?.attributes?.name || decodedData || null;
-  if (!name) {
-    return res.status(400).send('Name is required');
-  }
-
-  const result = `Hello ${name}!`;
-  logger.info("response", { requestLog, result });
-  return res.send(result);
-});
-
-const port = parseInt(process.env.PORT) || 8080;
+// サーバー起動と pull の開始
 app.listen(port, () => {
-  logger.info(`helloworld: listening on port ${port}`);
+  logger.info(`Listening on port ${port}`);
+  startPulling();
 });
-// [END cloudrun_helloworld_service]
+
+
 
 // Exports for testing purposes.
 export default app;

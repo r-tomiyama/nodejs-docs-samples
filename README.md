@@ -1,5 +1,3 @@
-<img src="https://avatars2.githubusercontent.com/u/2810941?v=3&s=96" alt="Google Cloud Platform logo" title="Google Cloud Platform" align="right" height="96" width="96"/>
-
 # Google Cloud Platform Node.js Samples
 
 Node.js samples for [Google Cloud Platform products][cloud].
@@ -18,11 +16,8 @@ visit the [Google Cloud Samples][cloud_samples] page.
 
 1. Install [Node.js version 14 or greater][node]
 1. Install the [Google Cloud CLI (gcloud)][gcloud]
-1. Clone this repository:
-
-        git clone https://github.com/GoogleCloudPlatform/nodejs-docs-samples.git
-
-1. Obtain authentication credentials.
+1. Clone this repository
+2. Obtain authentication credentials.
 
     Create local credentials by running the following command and following the
     oauth2 flow (read more about the command [here][auth_command]):
@@ -36,39 +31,33 @@ visit the [Google Cloud Samples][cloud_samples] page.
 [auth_command]: https://cloud.google.com/sdk/gcloud/reference/auth/application-default/login
 [gcp_auth]: https://cloud.google.com/docs/authentication#projects_and_resources
 
-## How to run a sample
+## 検証
 
-1. Change directory to one of the sample folders, e.g. `run/helloworld`:
+### Cloud Run のデプロイ
 
-        cd run/helloworld
+1. プロジェクトを選択する
 
-1. Install the sample's dependencies (see the sample's README for details):
+```
+gcloud config set project xxx
+gcloud config get-value project
+```
 
-        npm install
+### デプロイを実行する
 
-      * For samples with an available TypeScript variant, compile the 
-      TypeScript code:
-   
-                npm run build
+```
+cd run/helloworld
+npm install
+./deploy.sh
+```
 
-1. Run the sample:
+## PubSub
 
-        npm start [args]...
+```
+gcloud auth application-default login
+```
 
-## Other sample applications
-
-### Bookshelf tutorial app
-
-The [Bookshelf app][bookshelf_docs] is a sample web app written in Node.js that
-shows you how to use a variety of Google Cloud Platform features.
-
-View the [tutorial][bookshelf_docs] or the [source code][bookshelf_code].
-
-[bookshelf_docs]: https://cloud.google.com/nodejs/getting-started/tutorial-app
-[bookshelf_code]: https://github.com/GoogleCloudPlatform/nodejs-getting-started
-
-## Contributing
-
-Contributions welcome! See the [Contributing Guide][contrib].
-
-[contrib]: CONTRIBUTING.md
+```
+cd pubsub/publish
+npm install
+npm start
+```

@@ -1,22 +1,20 @@
 {
-  "name": "helloworld",
-  "description": "Simple hello world sample in Node",
+  "name": "subscriber",
+  "description": "A simple subscriber service",
   "version": "1.0.0",
   "private": true,
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "test": "c8 mocha -p -j 2 test/index.test.js --exit",
-    "system-test": "NAME=Cloud c8 mocha -p -j 2 test/system.test.js --timeout=180000"
+    "start": "node index.js"
   },
   "type": "module",
   "engines": {
     "node": ">=16.0.0"
   },
-  "author": "Google LLC",
-  "license": "Apache-2.0",
   "dependencies": {
     "express": "^4.17.1",
+    "@google-cloud/pubsub": "^4.10.0",
+    "dotenv": "^16.4.7",
     "@google-cloud/logging-winston": "^6.0.0",
     "winston": "^3.1.0"
   },
