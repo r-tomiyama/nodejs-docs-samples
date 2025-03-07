@@ -16,8 +16,8 @@ gcloud run deploy $SERVICE_NAME \
   --region $REGION \
   --allow-unauthenticated \
   --min-instances 0 \
-  --max-instances 5 \
-  --concurrency 10 \
+  --max-instances 100 \
+  --concurrency 210 \
   --cpu=1 \
   --memory=512Mi \
-  --timeout=30s
+  --timeout=3s

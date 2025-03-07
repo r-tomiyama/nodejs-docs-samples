@@ -21,6 +21,25 @@ const app = express();
 
 app.use(express.json()); // JSONボディを解析するミドルウェア
 
+const apiTimeout = 1000;
+app.use((req, res, next) => {
+  //  const decodedData = req.body.message?.data ? Buffer.from(req.body.message.data, 'base64').toString() : null;
+  //  const customTimeout = decodedData === "メッセージ 1" ? 10000 : apiTimeout;
+
+
+  res.setTimeout(apiTimeout, () => {
+    logger.info("2秒経過");
+    // return res.status(503).send('Service Unavailable');
+
+        // let err = new Error('Service Unavailable');
+        // err.status = 503;
+        // logger.info("Service Unavailable", { err });
+
+        // throw err;
+    });
+    next();
+});
+
 const logger = createLogger({
   transports: [
     new LoggingWinston({
@@ -45,10 +64,9 @@ app.post('/', async (req, res) => {
   const requestLog = { ...req.body, decodedData };
   logger.info("request", { requestLog });
 
-  logger.info("10 seconds wait", { requestLog });
-  await new Promise(resolve => setTimeout(resolve, 10000));
 
-
+  logger.info("5 seconds wait", { requestLog });
+  await new Promise(resolve => setTimeout(resolve, 5000));
 
   const name = req.body.message?.attributes?.name || decodedData || null;
   if (!name) {
@@ -61,10 +79,18 @@ app.post('/', async (req, res) => {
 });
 
 const port = parseInt(process.env.PORT) || 8080;
-app.listen(port, () => {
+const server = app.listen(port, () => {
   logger.info(`helloworld: listening on port ${port}`);
 });
 // [END cloudrun_helloworld_service]
+
+server.timeout = apiTimeout;
+
+server.on('timeout', (socket) => {
+  logger.info("タイムアウトしました", { ...socket });
+  // socket.end('リクエストがタイムアウトしました。');
+});
+
 
 // Exports for testing purposes.
 export default app;

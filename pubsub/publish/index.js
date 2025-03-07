@@ -9,22 +9,27 @@ const topicName = process.env.TOPIC_NAME;
 const pubSubClient = new PubSub({ projectId });
 
 async function publishMessages() {
-    for (let i = 0; i < 7; i++) {
-        // const buffers = Array.from({ length: 3 }, (_, j) => Buffer.from(`メッセージ ${i + 1}-${j + 1}`));
-        const dataBuffer = Buffer.from(`メッセージ ${i + 1}`);
-        const orderingKey = i % 2 === 0 ? "test-peko" : undefined;
+    const publishPromises = [];
 
-        try {
-            const result = await pubSubClient
-                .topic(topicName)
-                // .publishMessages(buffers);
-                // .publishMessage({ data: dataBuffer });
-                .publishMessage({ data: dataBuffer, orderingKey });
-            console.log(`メッセージ(${result})をパブリッシュしました。`);
-        } catch (error) {
-            console.error(`メッセージのパブリッシュ中にエラーが発生しました: ${error.message}`);
-        }
+    for (let i = 0; i < 2; i++) {
+        const dataBuffer = Buffer.from(`メッセージ ${i + 1}`);
+        const orderingKey = undefined;
+
+        const publishPromise = pubSubClient
+            .topic(topicName)
+            .publishMessage({ data: dataBuffer, orderingKey })
+            // .then(result => {
+            //     console.log(`メッセージ(${result})をパブリッシュしました。`);
+            // })
+            .catch(error => {
+                console.error(`メッセージのパブリッシュ中にエラーが発生しました: ${error.message}`);
+            });
+
+        publishPromises.push(publishPromise);
     }
+
+    await Promise.all(publishPromises);
+    console.log(`全てのメッセージをパブリッシュしました。`);
 }
 
 publishMessages();

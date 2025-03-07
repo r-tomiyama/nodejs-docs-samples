@@ -50,6 +50,8 @@ function startPulling() {
     const messageData = message.data.toString();
     const messageLog = {
       id: message.id,
+      ackId: message.ackId,
+      parentSpan: message.parentSpan,
       orderingKey: message.orderingKey,
       publishTime: message.publishTime,
       deliveryAttempt: message.deliveryAttempt,
@@ -71,7 +73,7 @@ function startPulling() {
 // サーバー起動と pull の開始
 app.listen(port, () => {
   logger.info(`Listening on port ${port}`);
-  startPulling();
+  // startPulling();
 });
 
 
